@@ -26,6 +26,22 @@ This article shows you how to enable sign-in for an ADFS user account by using [
 - Make sure that you have access to a certificate .pfx file with a private key. You can generate your own signed certificate and upload it to Azure AD B2C. Azure AD B2C uses this certificate to sign the SAML request sent to your SAML identity provider.
 - In order for Azure to accept the .pfx file password, the password must be encrypted with the TripleDES-SHA1 option in Windows Certificate Store Export utility as opposed to AES256-SHA256.
 
+### Prepare a self-signed certificate
+
+If you don't already have a certificate, you can use a self-signed certificate for this tutorial. On Windows, you can use PowerShell's [New-SelfSignedCertificate](https://docs.microsoft.com/powershell/module/pkiclient/new-selfsignedcertificate) cmdlet to generate a certificate.
+
+1. Execute this PowerShell command to generate a self-signed certificate. Modify the `-Subject` argument as appropriate for your application and Azure AD B2C tenant name. You can also adjust the `-NotAfter` date to specify a different expiration for the certificate.
+
+    ```PowerShell
+    New-SelfSignedCertificate `
+        -KeyExportPolicy Exportable `
+        -Subject "CN=yourappname.yourtenant.onmicrosoft.com" `
+        -KeyAlgorithm RSA `
+        -KeyLength 2048 `
+        -KeyUsage DigitalSignature `
+        -NotAfter (Get-Date).AddMonths(12) `
+        -CertStoreLocation "Cert:\CurrentUser\My"
+    ```
 ## Create a policy key
 
 You need to store your certificate in your Azure AD B2C tenant.
@@ -36,7 +52,7 @@ You need to store your certificate in your Azure AD B2C tenant.
 4. On the Overview page, select **Identity Experience Framework**.
 5. Select **Policy Keys** and then select **Add**.
 6. For **Options**, choose `Upload`.
-7. Enter a **Name** for the policy key. For example, `SamlCert`. The prefix `B2C_1A_` is added automatically to the name of your key.
+7. Enter a **Name** for the policy key. For example, `ADFSSamlCert`. The prefix `B2C_1A_` is added automatically to the name of your key.
 8. Browse to and select your certificate .pfx file with the private key.
 9. Click **Create**.
 
